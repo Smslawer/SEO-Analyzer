@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../.gradle/caches/modules-2/files-2.1/io.ebean/querybean-generator/12.14.1/db9117beff66049355eac195f75af9dd0960231d/querybean-generator-12.14.1.jar" />
+        </processorPath>
+        <module name="hexlet.code.app.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="16">
+      <module name="app.main" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
