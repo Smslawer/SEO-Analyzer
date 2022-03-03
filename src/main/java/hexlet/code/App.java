@@ -10,11 +10,16 @@ public class App {
 
         Javalin app = getApp();
         app.get("/", ctx -> ctx.result("Hello World"));
-        app.start(5000);
+        app.start(getPort());
     }
 
     public static String returnHello() {
         return "Hello";
+    }
+
+    private static int getPort() {
+        String port = System.getenv().getOrDefault("PORT", "5000");
+        return Integer.parseInt(port);
     }
 
     public static Javalin getApp() {
