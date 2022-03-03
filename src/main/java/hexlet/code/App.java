@@ -9,6 +9,7 @@ public class App {
         System.out.println(returnHello());
 
         Javalin app = getApp();
+        app.get("/", ctx -> ctx.result("Hello World"));
         app.start(5000);
     }
 
@@ -19,9 +20,7 @@ public class App {
     public static Javalin getApp() {
         Javalin app = Javalin.create(JavalinConfig::enableDevLogging);
 
-        app.before(ctx -> {
-            ctx.attribute("ctx", ctx);
-        });
+        app.before(ctx -> ctx.attribute("ctx", ctx));
 
         return app;
     }
