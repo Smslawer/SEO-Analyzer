@@ -9,7 +9,7 @@ plugins {
     id 'checkstyle'
     id 'com.adarshr.test-logger' version '3.0.0'
     id 'com.github.ben-manes.versions' version '0.39.0'
-    id 'io.ebean' version '12.11.5'
+    id 'io.ebean' version '12.14.1'
     id 'jacoco'
 }
 
@@ -48,14 +48,20 @@ dependencies {
     annotationProcessor 'io.ebean:querybean-generator:12.14.1'
 
     // NOTE: ebean-ddl-generator требует старые зависимости, которых нет в java 9 и выше
-    implementation 'org.glassfish.jaxb:jaxb-runtime:3.0.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
     implementation 'javax.activation:activation:1.1.1'
 
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
-    testImplementation 'org.assertj:assertj-core:3.22.0'
-    testImplementation 'io.ebean:ebean-test:12.14.1'
-    testImplementation 'com.konghq:unirest-java:3.13.6'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.1'
+    testImplementation 'org.assertj:assertj-core:3.21.0'
+    testImplementation 'io.ebean:ebean-test:12.11.5'
+    testImplementation 'com.konghq:unirest-java:3.13.0'
+
+    //add lombok
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    testCompileOnly 'org.projectlombok:lombok:1.18.20'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
 
 test {
