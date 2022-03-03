@@ -1,7 +1,6 @@
-name: actions_analizer
+name: actions_analyzer
 
-on:
-  - push
+on: [ push ]
 
 jobs:
   build:
@@ -11,15 +10,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v2
         with:
-          distribution: 'temurin'
-          java-version: '16'
+          distribution: 'zulu'
+          java-version: '17'
       - name: Build with Gradle
         run: make build
       - name: Publish code coverage
         uses: paambaati/codeclimate-action@v3.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.TEST_COVEREGE_ID_LVL4}}
-          JACOCO_SOURCE_PATH: src/main/java
+          JACOCO_SOURCE_PATH: ${{github.workspace}}/src/main/java
         with:
           coverageCommand: make report
           coverageLocations: ${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
