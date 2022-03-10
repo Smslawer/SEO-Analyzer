@@ -2,6 +2,7 @@ package hexlet.code.domain;
 
 import io.ebean.Model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.time.Instant;
@@ -16,6 +17,7 @@ public class Url extends Model {
     @Id
     private long id;
 
+    @Column(unique = true)
     private String name;
 
     @WhenCreated
