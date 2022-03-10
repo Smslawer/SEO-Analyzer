@@ -10,11 +10,9 @@ import io.javalin.http.NotFoundResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class UrlController {
-    public static Handler listUrls = ctx -> {
+    private static Handler listUrls = ctx -> {
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(1);
         int rowsPerPage = 10;
         int offset = (page - 1) * rowsPerPage;
@@ -33,14 +31,7 @@ public class UrlController {
         ctx.render("urls/index.html");
     };
 
-    public static Handler newUrl = ctx -> {
-        Url url = new Url();
-
-        ctx.attribute("url", url);
-        ctx.render("urls/index.html");
-    };
-
-    public static Handler createUrl = ctx -> {
+    private static Handler createUrl = ctx -> {
         String url = ctx.formParam("url");
 
         Url urlToAdd;
@@ -68,7 +59,7 @@ public class UrlController {
         ctx.redirect("/urls");
     };
 
-    public static Handler showUrl = ctx -> {
+    private static Handler showUrl = ctx -> {
         int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
 
         Url url = new QUrl()
@@ -83,4 +74,16 @@ public class UrlController {
         ctx.render("urls/show.html");
     };
 
+    //Методы созданы т.к. чекстайл ругался на то, что лябмды должны быть прайват и иметь вызывающие методы
+    public static Handler getListUrls() {
+        return listUrls;
+    }
+
+    public static Handler getCreateUrl() {
+        return createUrl;
+    }
+
+    public static Handler getShowUrl() {
+        return showUrl;
+    }
 }
