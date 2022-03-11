@@ -1,7 +1,7 @@
 package hexlet.code;
 
-import controllers.RootController;
-import controllers.UrlController;
+import hexlet.code.controllers.RootController;
+import hexlet.code.controllers.UrlController;
 import io.javalin.Javalin;
 import io.javalin.plugin.rendering.template.JavalinThymeleaf;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
@@ -47,6 +47,7 @@ public class App {
                 post(UrlController.getCreateUrl());
                 path("{id}", () -> {
                     get(UrlController.getShowUrl());
+                    post("/checks", UrlController.getRunChecks());
                 });
             });
         });

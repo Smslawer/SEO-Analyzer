@@ -2,10 +2,13 @@ package hexlet.code.domain;
 
 import io.ebean.Model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.time.Instant;
+import java.util.List;
 
 import io.ebean.annotation.WhenCreated;
 import lombok.Getter;
@@ -23,9 +26,8 @@ public class Url extends Model {
     @WhenCreated
     private Instant createdAt;
 
-    public Url() {
-
-    }
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<UrlCheck> urlChecks;
 
     public Url(String nameUrl) {
         this.name = nameUrl;

@@ -7,12 +7,18 @@ import io.ebean.Transaction;
 import io.javalin.Javalin;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,8 +31,10 @@ public final class AppTest {
 
     private static Javalin app;
     private static String baseUrl;
-    private static Url existingUrl;
+    private static Url url;
     private static Transaction transaction;
+    private static MockWebServer mockWebServer;
+    private static String mockHtml;
 
     @BeforeAll
     public static void beforeAll() {
@@ -35,8 +43,8 @@ public final class AppTest {
         int port = app.port();
         baseUrl = "http://localhost:" + port;
 
-        existingUrl = new Url(baseUrl);
-        existingUrl.save();
+        url = new Url("https://github.com");
+        url.save();
     }
 
     @AfterAll
@@ -47,11 +55,13 @@ public final class AppTest {
     @BeforeEach
     void beforeEach() {
         transaction = DB.beginTransaction();
+        mockWebServer = new MockWebServer();
     }
 
     @AfterEach
-    void afterEach() {
+    void afterEach() throws IOException {
         transaction.rollback();
+        mockWebServer.shutdown();
     }
 
     @Nested
@@ -76,23 +86,23 @@ public final class AppTest {
             String body = response.getBody();
 
             assertThat(response.getStatus()).isEqualTo(200);
-            assertThat(body).contains(existingUrl.getName());
+            assertThat(body).contains(url.getName());
         }
 
         @Test
         void testShow() {
             HttpResponse<String> response = Unirest
-                    .get(baseUrl + "/urls/" + existingUrl.getId())
+                    .get(baseUrl + "/urls/" + url.getId())
                     .asString();
             String body = response.getBody();
 
             assertThat(response.getStatus()).isEqualTo(200);
-            assertThat(body).contains(existingUrl.getName());
+            assertThat(body).contains(url.getName());
         }
 
         @Test
         void testCreate() {
-            String inputName = "https://github.com";
+            String inputName = "https://mail.yandex.ru";
             HttpResponse<String> responsePost = Unirest
                     .post(baseUrl + "/urls")
                     .field("url", inputName)
@@ -116,6 +126,71 @@ public final class AppTest {
 
             assertThat(actualUrl).isNotNull();
             assertThat(actualUrl.getName()).isEqualTo(inputName);
+        }
+
+        @Test
+        void newIncorrectUrlTest() {
+            HttpResponse<String> response = Unirest
+                    .post(baseUrl + "/urls")
+                    .field("url", "github.com")
+                    .asString();
+
+            String body = response.getBody();
+
+            Url urlIncorrect = new QUrl()
+                    .name.equalTo("github.com")
+                    .findOne();
+
+            assertThat(response.getStatus()).isEqualTo(422);
+            assertThat(body).contains("Некорректный URL");
+            assertThat(urlIncorrect).isNull();
+        }
+
+        @Test
+        void newExistingUrlTest() {
+            HttpResponse<String> response = Unirest
+                    .post(baseUrl + "/urls")
+                    .field("url", "https://github.com")
+                    .asString();
+
+            String body = response.getBody();
+
+            assertThat(response.getStatus()).isEqualTo(422);
+            assertThat(body).contains("Страница уже существует");
+        }
+
+        @Test
+        void mockTest() throws IOException {
+            mockHtml = Files.readString(Paths.get("src/test/resources/fakePage.html")
+                    .toAbsolutePath().normalize());
+            mockWebServer.enqueue(new MockResponse().setBody(mockHtml));
+            mockWebServer.start();
+
+            String mockUrl = mockWebServer.url("").toString();
+            String editedMockUrl = mockUrl.substring(0, mockUrl.length() - 1);
+
+            Unirest.post(baseUrl + "/urls")
+                    .field("url", mockUrl)
+                    .asEmpty();
+
+            Url testUrl = new QUrl()
+                    .name.equalTo(editedMockUrl)
+                    .findOne();
+
+            Unirest.post(baseUrl + "/urls/" + testUrl.getId() + "/checks")
+                    .asString();
+
+            HttpResponse<String> response = Unirest
+                    .get(baseUrl + "/urls/" + testUrl.getId())
+                    .asString();
+
+            String body = response.getBody();
+
+            assertThat(response.getStatus()).isEqualTo(200);
+            assertThat(body).contains("Страница успешно проверена");
+            assertThat(body).contains("TestDescription");
+            assertThat(body).contains("TestH1");
+            assertThat(body).contains("TestTitle");
         }
     }
 
